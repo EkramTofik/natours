@@ -1,3 +1,6 @@
+const dns = require('node:dns/promises');
+
+dns.setServers(['1.1.1.1', '8.8.8.8']);
 process.on('uncaughtException', (err) => {
   console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
   console.log(err.name, err.message);
@@ -15,12 +18,15 @@ const DB = process.env.DATABASE.replace(
   process.env.DATABASE_PASSWORD,
 );
 
-mongoose.connect(DB).then(() => {
-  console.log('Database connection successful  🎉');
-});
-// .catch((err) => {
-//   console.log('Database connection failed  💥:');
-// });
+mongoose
+  .connect(DB)
+  .then(() => {
+    console.log('Database connection successful  🎉');
+  })
+  .catch((err) => {
+    console.log('Database connection failed 💥:');
+    console.error(err);
+  });
 const port = process.env.PORT;
 const server = app.listen(port, () => {
   console.log(`App is running on ${port}...`);
