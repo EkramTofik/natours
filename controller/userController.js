@@ -10,6 +10,13 @@ const filterObj = (obj, ...allowedFields) => {
   });
   return newObj;
 };
+exports.deleteMe = catchAsync(async (req, res) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
 
 exports.updateMe = catchAsync(async (req, res, next) => {
   if (req.body.password || req.body.passwordConfirm) {
