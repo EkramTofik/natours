@@ -46,6 +46,12 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!email || !password) {
     return next(new AppError('Please provide email and password!'));
   }
+
+  // if (typeof email !== 'string' || typeof password !== 'string') {
+  //   return next(
+  //     new AppError('No longer accept this type of email or password', 400),
+  //   );
+  // }
   const user = await User.findOne({ email: email }).select('+password');
   if (!user || !(await user.comparePassword(password, user.password))) {
     return next(new AppError('Invalid email or password', 401));

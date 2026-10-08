@@ -6,23 +6,31 @@ class ApiFeature {
 
   filter() {
     const queryObj = { ...this.queryStr };
+
     const excludedFields = ['page', 'limit', 'sort', 'fields'];
+
     excludedFields.forEach((el) => delete queryObj[el]);
-    this.queryStr = JSON.stringify(queryObj);
-    this.queryStr = this.queryStr.replace(
+
+    let queryStr = JSON.stringify(queryObj);
+
+    queryStr = queryStr.replace(
       /\[(gte|gt|lte|lt)\]":"([^"]+)"/g,
       '":{"$$$1":"$2"}',
     );
-    this.query = this.query.find(JSON.parse(this.queryStr));
+
+    this.query = this.query.find(JSON.parse(queryStr));
     return this;
   }
 
   sort() {
     if (this.queryStr.sort) {
-      const sortBy = this.query.sort.split(',').join(' ');
-      this.queryStr = this.queryStr.sort(sortBy);
+      const sortBy = Array.isArray(this.queryStr.sort)
+        ? this.queryStr.sort.join(' ')
+        : this.queryStr.sort.split(',').join(' ');
+
+      this.query = this.query.sort(sortBy);
     } else {
-      this.queryStr = this.query.sort('-_id');
+      this.query = this.query.sort('-_id');
     }
     return this;
   }
