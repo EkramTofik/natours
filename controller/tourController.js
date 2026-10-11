@@ -1,8 +1,7 @@
 const Tour = require('../model/tourModel');
 
-const ApiFeature = require('../utiles/apiFeature');
-const AppError = require('../utiles/appError');
 const catchAsync = require('../utiles/catchAsync');
+const handlerFactory = require('./handlerFactory');
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
@@ -12,101 +11,11 @@ exports.aliasTopTours = (req, res, next) => {
 };
 
 //ROUTE HANDLERS
-exports.getAllTours = catchAsync(async (req, res) => {
-  // const queryObj = { ...req.query };
-  // const excludedFields = ['page', 'limit', 'sort', 'fields'];
-  // excludedFields.forEach((el) => delete queryObj[el]);
-  // let queryStr = JSON.stringify(queryObj);
-  // queryStr = queryStr.replace(
-  //   /\[(gte|gt|lte|lt)\]":"([^"]+)"/g,
-  //   '":{"$$$1":"$2"}',
-  // );
-  const feature = new ApiFeature(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitField()
-    .paginate();
-
-  // if (req.query.sort) {
-  //   const sortBy = req.query.sort.split(',').join(' ');
-  //   query = query.sort(sortBy);
-  // } else {
-  //   query = query.sort('-_id');
-  // }
-  // if (req.query.fields) {
-  //   const fields = req.query.fields.split(',').join(' ');
-  //   query = query.select(fields);
-  // } else {
-  //   query = query.select('-__v');
-  // }
-  // const page = req.query.page * 1 || 1;
-  // const limit = req.query.limit * 1 || 100;
-  // const skip = (page - 1) * limit;
-  // query = query.skip(skip).limit(limit);
-
-  // if (req.query.page) {
-  //   const numTours = await Tour.countDocuments();
-  //   if (skip >= numTours) throw new Error('This page does not found');
-  // }
-
-  const tours = await feature.query;
-
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: {
-      tours,
-    },
-  });
-});
-exports.createTour = catchAsync(async (req, res) => {
-  const newTour = await Tour.create(req.body);
-
-  res.status(201).json({
-    status: 'success',
-    data: {
-      tour: newTour,
-    },
-  });
-});
-exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id);
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', 404));
-  }
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
-});
-exports.updateTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    returnDocument: 'after',
-    runValidators: true,
-  });
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', 404));
-  }
-  res.status(200).json({
-    status: 'success',
-    message: 'Updated Tour is here',
-    data: {
-      tour,
-    },
-  });
-});
-exports.deleteTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', 404));
-  }
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
-});
+exports.getAllTours = handlerFactory.getAll(Tour);
+exports.createTour = handlerFactory.createOne(Tour);
+exports.getTour = handlerFactory.getOne(Tour);
+exports.updateTour = handlerFactory.updateOne(Tour);
+exports.deleteTour = handlerFactory.deleteOne(Tour);
 exports.getTourStats = catchAsync(async (req, res) => {
   const stats = await Tour.aggregate([
     {

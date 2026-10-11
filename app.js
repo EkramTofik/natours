@@ -12,6 +12,8 @@ const globalErrorHandler = require('./controller/erroController');
 
 const tourRouter = require('./routes/tourRouter');
 const userRouter = require('./routes/userRouter');
+const reviewRouter = require('./routes/reviewRouter');
+
 //1 GLOBAL MIDDLEWARES
 //Set security HTTP headers
 app.use(helmet());
@@ -71,6 +73,7 @@ app.use((req, res, next) => {
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 //The requested URL doesnt exist
 app.all('*path', (req, res, next) => {
