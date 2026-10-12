@@ -13,10 +13,7 @@ class ApiFeature {
 
     let queryStr = JSON.stringify(queryObj);
 
-    queryStr = queryStr.replace(
-      /\[(gte|gt|lte|lt)\]":"([^"]+)"/g,
-      '":{"$$$1":"$2"}',
-    );
+    queryStr = queryStr.replace(/"(gte|gt|lte|lt)":"([^"]+)"/g, '"$$$1":"$2"');
 
     this.query = this.query.find(JSON.parse(queryStr));
     return this;

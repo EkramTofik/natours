@@ -13,7 +13,7 @@ exports.aliasTopTours = (req, res, next) => {
 //ROUTE HANDLERS
 exports.getAllTours = handlerFactory.getAll(Tour);
 exports.createTour = handlerFactory.createOne(Tour);
-exports.getTour = handlerFactory.getOne(Tour);
+exports.getTour = handlerFactory.getOne(Tour, { path: 'reviews' });
 exports.updateTour = handlerFactory.updateOne(Tour);
 exports.deleteTour = handlerFactory.deleteOne(Tour);
 exports.getTourStats = catchAsync(async (req, res) => {

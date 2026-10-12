@@ -45,27 +45,20 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getAllUsers = catchAsync(async (req, res) => {
-  const users = await User.find();
-  res.status(200).json({
-    status: 'success',
-    data: {
-      users,
-    },
-  });
-});
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
+
 exports.createUser = (req, res) => {
   res.status(201).json({
     status: 'error',
-    message: 'This route is not handled yet ',
+    message: 'This route is not defined! Please use /signup instead ',
   });
 };
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not handled yet ',
-  });
-};
+exports.getAllUsers = handlerFactory.getAll(User);
+
+exports.getUser = handlerFactory.getOne(User);
 
 exports.updateUser = handlerFactory.updateOne(User);
 
