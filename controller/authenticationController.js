@@ -53,7 +53,11 @@ exports.login = catchAsync(async (req, res, next) => {
   //   );
   // }
   const user = await User.findOne({ email: email }).select('+password');
+  console.log('User found:', Boolean(user));
+
   if (!user || !(await user.comparePassword(password, user.password))) {
+    console.log('Stored password exists:', Boolean(user.password));
+
     return next(new AppError('Invalid email or password', 401));
   }
   createSendToken(user, 201, res);

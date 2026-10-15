@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Tour = require('../model/tourModel');
+const Tour = require('./tourModel');
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -25,6 +25,8 @@ const reviewSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   },
 );
+
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
 reviewSchema.pre(/^find/, function () {
   //   this.populate({
@@ -54,15 +56,32 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
   ]);
   console.log(stats);
 
-  await Tour.findByIdAndUpdate(tourId, {
-    ratingQuantity: stats[0].nRating,
-    ratingAverage: stats[0].avgRating,
-  });
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingQuantity: stats[0].nRating,
+      ratingAverage: stats[0].avgRating,
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingQuantity: 0,
+      ratingAverage: 4.5,
+    });
+  }
 };
 reviewSchema.post('save', function () {
-  // Review.calcAverageRatings(this.tour);
+  // Review.calcAverageRatings(this.tour); Works same but Review is used before its definition in your source code, even though the middleware runs later
   this.constructor.calcAverageRatings(this.tour);
 });
+let Review;
 
-const Review = mongoose.model('Review', reviewSchema);
+reviewSchema.pre(/^findOneAnd/, async function () {
+  this.r = await Review.findOne(this.getQuery());
+});
+
+reviewSchema.post(/^findOneAnd/, async function () {
+  await this.r.constructor.calcAverageRatings(this.r.tour);
+});
+
+Review = mongoose.model('Review', reviewSchema);
+
 module.exports = Review;

@@ -35,6 +35,7 @@ const tourSchema = new mongoose.Schema(
       default: 4.5,
       min: [1.0, 'Rating must be above 1.0'],
       max: [5.0, 'Rating must be below 5.0'],
+      set: (val) => Math.round(val * 10) / 10,
     },
     ratingQuantity: {
       type: Number,
@@ -83,6 +84,16 @@ const tourSchema = new mongoose.Schema(
       default: false,
     },
     guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+    startLocation: {
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -115,7 +126,7 @@ tourSchema.pre(/^find/, function () {
 
 tourSchema.index({ price: 1, ratingsAverage: -1 });
 tourSchema.index({ slug: 1 });
-
+tourSchema.index({ startLocation: '2dsphere' });
 //Virtual populate
 tourSchema.virtual('reviews', {
   ref: 'Review',
@@ -127,9 +138,9 @@ tourSchema.virtual('reviews', {
 tourSchema.pre(/^find/, function () {
   this.find({ secretTour: { $ne: true } });
 });
-tourSchema.pre('aggregate', function () {
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-});
+// tourSchema.pre('aggregate', function () {
+//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+// });
 
 const Tour = mongoose.model('Tour', tourSchema);
 module.exports = Tour;
