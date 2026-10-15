@@ -54,10 +54,10 @@ userSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
 });
 userSchema.pre('save', async function (next) {
-  if (!this.isModified(this.password) || this.isNew) {
+  if (!this.isModified('password') || this.isNew) {
     return;
   }
-  this.passwordChangedAt = Date.now - 1000;
+  this.passwordChangedAt = Date.now() - 1000;
 });
 
 userSchema.methods.comparePassword = async function (
