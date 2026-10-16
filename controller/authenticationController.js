@@ -60,7 +60,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
     return next(new AppError('Invalid email or password', 401));
   }
-  createSendToken(user, 201, res);
+  createSendToken(user, 200, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
